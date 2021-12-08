@@ -1,0 +1,118 @@
+[
+  {
+    "name": "accent chair",
+    "price": 25,
+    "gender": "men"
+  },
+  {
+    "name": "albany sectional",
+    "price": 109,
+    "gender": "men"
+  },
+  {
+    "name": "albany table",
+    "price": 309,
+    "gender": "men"
+  },
+  {
+    "name": "armchair",
+    "price": 125,
+    "gender": "women"
+  },
+  {
+    "name": "bar stool",
+    "price": 40,
+    "gender": "women"
+  },
+  {
+    "name": "dining table",
+    "price": 42,
+    "gender": "men"
+  },
+  {
+    "name": "emperor bed",
+    "price": 23,
+    "gender": "women"
+  },
+  {
+    "name": "entertainment center",
+    "price": 59,
+    "gender": "men"
+  },
+  {
+    "name": "high-back bench",
+    "price": 39,
+    "gender": "men"
+  },
+
+  {
+    "name": "leather sofa",
+    "price": 99,
+    "gender": "men"
+  },
+  {
+    "name": "modern bookshelf",
+    "price": 31,
+    "gender": "men"
+  },
+  {
+    "name": "modern poster",
+    "price": 30,
+    "gender": "men"
+  },
+  {
+    "name": "shelf",
+    "price": 30,
+    "gender": "women"
+  },
+  {
+    "name": "simple chair",
+    "price": 109,
+    "gender": "men"
+  },
+  {
+    "name": "sofa set",
+    "price": 129,
+    "gender": "men"
+  },
+  {
+    "name": "suede armchair",
+    "price": 15,
+    "gender": "women"
+  },
+  {
+    "name": "utopia sofa",
+    "price": 79,
+    "gender": "women"
+  },
+  {
+    "name": "vase table",
+    "price": 120,
+    "gender": "women"
+  },
+  {
+    "name": "wooden bed",
+    "price": 25,
+    "gender": "women"
+  },
+  {
+    "name": "wooden desk",
+    "price": 15,
+    "gender": "women"
+  },
+  {
+    "name": "wooden desk",
+    "price": 40,
+    "gender": "men"
+  },
+  {
+    "name": "wooden table",
+    "price": 23,
+    "gender": "men"
+  },
+  {
+    "name": "a first wooden table",
+    "price": 23,
+    "gender": "men"
+  }
+]
