@@ -9,6 +9,10 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       required: [true, "[Product]: Product price must be provided"],
     },
+    imageUrl: {
+      type: String,
+      require: [true, "Image must be provided"],
+    },
     sale: {
       type: Number,
       min: [0, "[Product]: Sale percent must not lower than 0"],

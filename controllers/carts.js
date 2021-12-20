@@ -7,16 +7,30 @@ const { UnauthenticatedError, BadRequestError, InternalServerError } = require("
 
 const { MEMBERSHIP_DISCOUNT, MEMBERSHIP_LEVEL } = require("../utils/const");
 
-const all = async ({ customer }, res) => {
+const endOfDay = require("date-fns/endOfDay");
+const startOfDay = require("date-fns/startOfDay");
+
+const all = async ({ customer, query }, res) => {
   const { customerId, role } = customer;
   let carts;
-  if (role === "admin" || role === "syx-admin") {
-    carts = await Cart.find({});
+  if (role === "admin" || role === "sys-admin") {
+    if (query && query.date && query.date !== "") {
+      const date = query.date.split(",");
+      const startDay = new Date(date[0]);
+      const endDay = new Date(date[1]);
+      carts = await Cart.find({
+        status: "accepted",
+        updatedAt: {
+          $gte: startOfDay(startDay),
+          $lte: endOfDay(endDay),
+        },
+      });
+    } else {
+      carts = await Cart.find({});
+    }
   } else {
     carts = await Cart.find({ customerId });
   }
-  console.log(carts);
-
   const transformedCart = carts.map(async (c) => {
     const orderedProduct = await transformCartItem(c.orderedProduct);
     return {
@@ -139,9 +153,10 @@ const transformCartItem = async (orderedProduct) => {
   const productsPromise = orderedProduct.map((item) => Product.findOne({ _id: item.productId }));
   const products = await Promise.all(productsPromise);
   return orderedProduct.map((item) => {
-    const { _id, name, sale, type, rating, price } = products.find((prod) => prod._id.equals(item.productId));
+    const { _id, name, sale, type, rating, price, gender } = products.find((prod) => prod._id.equals(item.productId));
     return {
       _id,
+      gender,
       name,
       sale,
       type,

@@ -9,9 +9,10 @@ const fs = require("fs");
 // /product?numericFilters=sale>3
 // /products?type=men&numericFilters=rating>0&sort=-price
 const all = async (req, res) => {
-  const { type, name, sort, fields, numericFilters } = req.query;
+  const { type, name, sort, gender, fields, numericFilters } = req.query;
   const queryObject = {};
   if (type) queryObject.type = type;
+  if (gender) queryObject.gender = gender;
   if (name) queryObject.name = { $regex: name, $options: "i" };
   if (numericFilters) {
     const operatorMap = {
@@ -37,9 +38,8 @@ const all = async (req, res) => {
   if (sort) {
     const sortList = sort.split(",").join(" ");
     result = result.sort(sortList);
-  } else {
-    result = result.sort({ createdAt: "desc" });
   }
+  result = result.sort({ createdAt: "desc" });
 
   if (fields) {
     const fieldsList = fields.split(",").join(" ");

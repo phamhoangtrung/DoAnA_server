@@ -12,6 +12,8 @@ const cartRoute = require("./routes/carts");
 
 const notFoundMiddleware = require("./middleware/not-found");
 const errorMiddleware = require("./middleware/error-handler");
+const upload = require("./middleware/multer");
+const fs = require("fs");
 
 // middleware
 app.use(express.json());
@@ -22,12 +24,26 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.send('<h1>Store API</h1><a href="/api/v1/products">products route</a>');
 });
+app.get("/photo/:id", (req, res) => {
+  var filename = req.params.id;
+  fs.readFile("uploads/" + filename, function read(err, data) {
+    if (err) {
+      throw err;
+    }
+    res.writeHead(200, { "Content-Type": "image/jpeg" });
+    res.end(data);
+  });
+});
 
 app.use("/api/v1/product", productsRoute);
 app.use("/api/v1/auth", customerRoute);
 app.use("/api/v1/cart", cartRoute);
 
-// products route
+app.post("/api/v1/uploadphoto", upload.single("file"), async (req, res) => {
+  const { filename } = req.file;
+  const fullUrl = `${req.protocol}://${req.get("host")}/photo/${filename}`;
+  res.send({ filename: fullUrl });
+});
 
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
