@@ -6,6 +6,12 @@ const CartItemSchema = new mongoose.Schema({
     ref: "Product",
   },
   quantity: Number,
+  star: {
+    type: Number,
+    default: 3,
+    min: [0, "[Product]: Product rating must not be lower than 0"],
+    max: [5, "[Product]: Product rating must not be greater than 5"],
+  },
 });
 
 const CartSchema = new mongoose.Schema(

@@ -33,7 +33,7 @@ const all = async (req, res) => {
     });
   }
 
-  let result = Product.find(queryObject);
+  let result = Product.find({ ...queryObject, isDelete: false });
   // sort
   if (sort) {
     const sortList = sort.split(",").join(" ");
@@ -67,7 +67,16 @@ const one = async ({ params: { id: _id } }, res) => {
 };
 
 const remove = async ({ params: { id: _id } }, res) => {
-  const product = await Product.findOneAndDelete({ _id });
+  const product = await Product.findOneAndUpdate(
+    { _id },
+    {
+      isDelete: true,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
   if (!product) throw new NotFoundError(`No product with id : ${_id}`);
   res.status(StatusCodes.OK).json({ product });
 };

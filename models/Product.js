@@ -33,6 +33,14 @@ const ProductSchema = new mongoose.Schema(
       type: String,
       required: [true, "Product gender must be provided"],
     },
+    isDelete: {
+      type: Boolean,
+      default: false,
+    },
+    totalSell: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

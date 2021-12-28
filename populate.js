@@ -13,10 +13,10 @@ fs.readFile("controllers/product.json", "utf-8", (err, data) => {
     const random = Math.floor(Math.random() * type.length);
     let percent = Math.floor(Math.random() * 100);
     let rating = Math.floor(Math.random() * 5);
-
+    let isDeleted = false;
     if (percent > 0 && percent < 0) percent = 0;
 
-    return { ...d, type: type[random], sale: percent, rating };
+    return { ...d, type: type[random], sale: percent, rating, isDeleted };
   });
 });
 

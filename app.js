@@ -24,12 +24,11 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.send('<h1>Store API</h1><a href="/api/v1/products">products route</a>');
 });
+
 app.get("/photo/:id", (req, res) => {
   var filename = req.params.id;
   fs.readFile("uploads/" + filename, function read(err, data) {
-    if (err) {
-      throw err;
-    }
+    if (err) throw err;
     res.writeHead(200, { "Content-Type": "image/jpeg" });
     res.end(data);
   });

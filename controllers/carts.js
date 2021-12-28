@@ -33,8 +33,9 @@ const all = async ({ customer, query }, res) => {
   }
   const transformedCart = carts.map(async (c) => {
     const orderedProduct = await transformCartItem(c.orderedProduct);
+    const { email } = await Customer.findOne({ _id: c.customerId });
     return {
-      customerId: c.customerId,
+      customerEmail: email,
       createdAt: c.createdAt,
       customerId: c.customerId,
       status: c.status,
@@ -153,7 +154,7 @@ const transformCartItem = async (orderedProduct) => {
   const productsPromise = orderedProduct.map((item) => Product.findOne({ _id: item.productId }));
   const products = await Promise.all(productsPromise);
   return orderedProduct.map((item) => {
-    const { _id, name, sale, type, rating, price, gender } = products.find((prod) => prod._id.equals(item.productId));
+    const { _id, name, sale, type, rating, price, gender, imageUrl } = products.find((prod) => prod._id.equals(item.productId));
     return {
       _id,
       gender,
@@ -161,6 +162,7 @@ const transformCartItem = async (orderedProduct) => {
       sale,
       type,
       rating,
+      imageUrl,
       price,
       quantity: item.quantity,
     };
