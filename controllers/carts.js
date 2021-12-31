@@ -4,7 +4,7 @@ const Customer = require("../models/Customer");
 
 const { StatusCodes } = require("http-status-codes");
 const { UnauthenticatedError, BadRequestError, InternalServerError } = require("../errors");
-const {  MEMBERSHIP_LEVEL } = require("../utils/const");
+const { MEMBERSHIP_LEVEL } = require("../utils/const");
 
 const endOfDay = require("date-fns/endOfDay");
 const startOfDay = require("date-fns/startOfDay");
@@ -34,14 +34,8 @@ const all = async ({ customer, query }, res) => {
     const orderedProduct = await transformCartItem(c.orderedProduct);
     const { email } = await Customer.findOne({ _id: c.customerId });
     return {
+      ...c.toObject(),
       customerEmail: email,
-      createdAt: c.createdAt,
-      customerId: c.customerId,
-      status: c.status,
-      total: c.total,
-      _id: c._id,
-      updatedAt: c.updatedAt,
-      isRated: c.isRated,
       orderedProduct,
     };
   });
@@ -58,7 +52,7 @@ const one = async ({ customer, params }, res) => {
 
   const orderedProduct = await transformCartItem(cart.orderedProduct);
   const newCart = {
-    id: cart._id,
+    ...cart.toObject(),
     customerId: cart.customerId,
     orderedProduct,
   };
@@ -150,22 +144,34 @@ const finishCart = async ({ params }, res) => {
   res.status(StatusCodes.OK).json({ cart });
 };
 
+// const transformCartItem = async (orderedProduct) => {
+//   const productsPromise = orderedProduct.map((item) => Product.findOne({ _id: item.productId }));
+//   const products = await Promise.all(productsPromise);
+//   return orderedProduct.map((item) => {
+//     const { _id, name, sale, type, rating, price, gender, imageUrl } = products.find((prod) => prod._id.equals(item.productId));
+//     return {
+//       _id,
+//       gender,
+//       name,
+//       sale,
+//       type,
+//       rating,
+//       imageUrl,
+//       price,
+//       quantity: item.quantity,
+//     };
+//   });
+// };
+
 const transformCartItem = async (orderedProduct) => {
-  const productsPromise = orderedProduct.map((item) => Product.findOne({ _id: item.productId }));
-  const products = await Promise.all(productsPromise);
-  return orderedProduct.map((item) => {
-    const { _id, name, sale, type, rating, price, gender, imageUrl } = products.find((prod) => prod._id.equals(item.productId));
-    return {
-      _id,
-      gender,
-      name,
-      sale,
-      type,
-      rating,
-      imageUrl,
-      price,
-      quantity: item.quantity,
-    };
+  const productIds = orderedProduct.map((item) => item.productId);
+  const prodCollection = await Product.find({
+    _id: {
+      $in: productIds,
+    },
+  });
+  return prodCollection.map((pc, index) => {
+    return { ...pc.toObject(), quantity: orderedProduct[index].quantity };
   });
 };
 
