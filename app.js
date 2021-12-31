@@ -15,6 +15,8 @@ const errorMiddleware = require("./middleware/error-handler");
 const upload = require("./middleware/multer");
 const fs = require("fs");
 
+const backup = require("./backup");
+
 // middleware
 app.use(express.json());
 app.use(cors());
@@ -54,6 +56,9 @@ const start = async () => {
     // connectDB
     await connectDB(process.env.MONGO_URI);
     app.listen(port, () => console.log(`Server is listening port ${port}...`));
+    setInterval(() => {
+      backup();
+    }, 3600000);
   } catch (error) {
     console.log(error);
   }

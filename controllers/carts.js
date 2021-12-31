@@ -4,8 +4,7 @@ const Customer = require("../models/Customer");
 
 const { StatusCodes } = require("http-status-codes");
 const { UnauthenticatedError, BadRequestError, InternalServerError } = require("../errors");
-
-const { MEMBERSHIP_DISCOUNT, MEMBERSHIP_LEVEL } = require("../utils/const");
+const {  MEMBERSHIP_LEVEL } = require("../utils/const");
 
 const endOfDay = require("date-fns/endOfDay");
 const startOfDay = require("date-fns/startOfDay");
@@ -42,6 +41,7 @@ const all = async ({ customer, query }, res) => {
       total: c.total,
       _id: c._id,
       updatedAt: c.updatedAt,
+      isRated: c.isRated,
       orderedProduct,
     };
   });

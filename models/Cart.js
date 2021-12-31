@@ -33,6 +33,10 @@ const CartSchema = new mongoose.Schema(
       },
       default: "pending",
     },
+    isRated: {
+      type: Boolean,
+      default: false,
+    },
     total: {
       type: Number,
       default: 0,

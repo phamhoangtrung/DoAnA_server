@@ -8,7 +8,6 @@ const adminMiddleware = async ({ customer }, res, next) => {
 
 const sysAdminMiddleware = async ({ customer }, res, next) => {
   const { role } = customer;
-  console.log(role);
   if (role === "sys-admin") next();
   else throw new UnauthenticatedError("[Authentication]: No Permission");
 };

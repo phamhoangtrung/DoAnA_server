@@ -1,13 +1,16 @@
 const Product = require("../models/Product");
+const Cart = require("../models/Cart");
+const Selection = require("../models/Selection");
+
 const { StatusCodes } = require("http-status-codes");
 const { NotFoundError } = require("../errors");
-const fs = require("fs");
 
 // /product?page=1,
 // /product?sort=-name
 // /product?type=women
 // /product?numericFilters=sale>3
 // /products?type=men&numericFilters=rating>0&sort=-price
+
 const all = async (req, res) => {
   const { type, name, sort, gender, fields, numericFilters } = req.query;
   const queryObject = {};
@@ -90,15 +93,64 @@ const update = async ({ params: { id: _id }, body }, res) => {
   res.status(StatusCodes.OK).json({ product });
 };
 
-const getSelection = (req, res) => {
-  fs.readFile("controllers/product.json", "utf-8", (err, data) => {
-    if (err) {
-      throw new NotFoundError("No selection found");
-    }
-    const selection = JSON.parse(data.toString());
+const getSelection = async (_, res) => {
+  /** @type {Array<{name:string,value:string}>} */
+  const selection = await Selection.find({});
 
-    res.json(selection);
+  const data = selection.reduce((acc, cur) => {
+    if (!acc[cur.name]) acc[cur.name] = [];
+    return { ...acc, [cur.name]: [...acc[cur.name], cur.value] };
+  }, {});
+
+  res.json(data);
+};
+
+const addSelection = async (req, res) => {
+  const data = await Selection.create(req.body.selection);
+  res.send({ msg: "ok" });
+};
+
+const rating = async (req, res) => {
+  const { product: prodRequest, _id: cartId } = req.body;
+  const ids = prodRequest.map((p) => p._id);
+  const prodCollection = await Product.find({
+    _id: {
+      $in: ids,
+    },
   });
+  prodCollection.forEach(async (pc) => {
+    prodRequest.forEach(async (pr) => {
+      if (pc._id.toString() === pr._id) {
+        const updateData = calculateRating(pr.rating, pr.quantity, pc);
+
+        await Product.findOneAndUpdate({ _id: pr._id }, updateData, {
+          new: true,
+          runValidators: true,
+        });
+      }
+    });
+  });
+  console.log(cartId);
+
+  await Cart.findOneAndUpdate(
+    { _id: cartId },
+    { isRated: true },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.send({ msg: "Success" });
+};
+
+const calculateRating = (rating, quantity, product) => {
+  const newTotalSell = product.totalSell + quantity;
+  const newRating = (product.rating * product.totalSell + rating * quantity) / newTotalSell;
+  return {
+    totalSell: newTotalSell,
+    rating: newRating,
+  };
 };
 
 module.exports = {
@@ -108,4 +160,6 @@ module.exports = {
   update,
   remove,
   getSelection,
+  rating,
+  addSelection,
 };
