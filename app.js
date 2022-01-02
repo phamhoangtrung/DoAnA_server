@@ -4,6 +4,7 @@ require("express-async-errors");
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const fileupload = require("express-fileupload");
 
 const connectDB = require("./db/connect");
 
@@ -19,13 +20,14 @@ const backup = require("./backup");
 
 // middleware
 app.use(express.json());
+app.use(fileupload());
 app.use(cors());
 
 // routes
 app.use("/api/v1/product", productsRoute);
 app.use("/api/v1/auth", customerRoute);
 app.use("/api/v1/cart", cartRoute);
-app.use("/api/v1/resource", resourceRoute);
+app.use("/photo", resourceRoute);
 app.use(notFoundMiddleware);
 app.use(errorMiddleware);
 
