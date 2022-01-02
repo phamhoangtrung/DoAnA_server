@@ -58,10 +58,12 @@ const CustomerSchema = mongoose.Schema({
 });
 
 CustomerSchema.pre("save", async function () {
+  // hash password before save to dtb
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
+// add extra method to Model
 CustomerSchema.methods.createJWT = function () {
   return jwt.sign({ customerId: this._id, name: this.name, role: this.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME });
 };

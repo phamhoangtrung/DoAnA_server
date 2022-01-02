@@ -12,7 +12,9 @@ const startOfDay = require("date-fns/startOfDay");
 const all = async ({ customer, query }, res) => {
   const { customerId, role } = customer;
   let carts;
+  // if admin get all cart
   if (role === "admin" || role === "sys-admin") {
+    // get cart by date
     if (query && query.date && query.date !== "") {
       const date = query.date.split(",");
       const startDay = new Date(date[0]);
@@ -25,9 +27,11 @@ const all = async ({ customer, query }, res) => {
         },
       });
     } else {
+      // get all cart
       carts = await Cart.find({});
     }
   } else {
+    // if normal user get only that user cart
     carts = await Cart.find({ customerId });
   }
   const transformedCart = carts.map(async (c) => {
@@ -63,6 +67,7 @@ const remove = async ({ params, customer }, res) => {
   const cart = await Cart.findOne({ _id: params.id });
   if (!cart) throw new NotFoundError(`No cart found cart with id ${params.id}`);
 
+  // only remove if cart accepted
   if (cart.status === "accepted") throw new BadRequestError("Can not delete accepted product");
 
   if (!cart.customerId.equals(customer.customerId)) throw new UnauthenticatedError("[Authentication]: Invalid authentication");
@@ -74,10 +79,7 @@ const remove = async ({ params, customer }, res) => {
 const create = async ({ customer, body }, res) => {
   const { customerId, memberShip } = customer;
   // Create a Cart
-  const cart = await Cart.create({
-    orderedProduct: body,
-    customerId,
-  });
+  const cart = await Cart.create({ orderedProduct: body, customerId, });
 
   // transform item format
   const orderedProduct = await transformCartItem(cart.orderedProduct);
@@ -88,14 +90,10 @@ const create = async ({ customer, body }, res) => {
   let createdCart;
   try {
     // Update 'cart' total on the top
-    createdCart = await Cart.findOneAndUpdate(
-      { _id: cart._id },
-      { total: memberDiscount },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    createdCart = await Cart.findOneAndUpdate({ _id: cart._id }, { total: memberDiscount }, {
+      new: true,
+      runValidators: true,
+    });
   } catch (error) {
     // Delete that 'cart' if any error
     await Cart.findOneAndDelete({ _id: cart._id });
@@ -113,63 +111,32 @@ const finishCart = async ({ params }, res) => {
     throw new BadRequestError("Cart accepted already");
   }
 
-  const cart = await Cart.findOneAndUpdate(
-    { _id: params.id },
-    { status: "accepted" },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  const cart = await Cart.findOneAndUpdate({ _id: params.id }, { status: "accepted" }, {
+    new: true,
+    runValidators: true,
+  });
 
   // take customer info
-  let { totalBuy, memberShip } = await Customer.findOne({
-    _id: cart.customerId,
-  });
+  let { totalBuy, memberShip } = await Customer.findOne({ _id: cart.customerId });
 
   // update totalBuy and membership level
   const updatedTotalBuy = totalBuy + cart.total;
   if (updatedTotalBuy >= MEMBERSHIP_LEVEL[memberShip + 1]) {
     memberShip += 1;
   }
-  await Customer.updateOne(
-    { _id: cart.customerId },
-    { totalBuy: updatedTotalBuy, memberShip },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  await Customer.updateOne({ _id: cart.customerId }, { totalBuy: updatedTotalBuy, memberShip }, {
+    new: true,
+    runValidators: true,
+  });
 
   res.status(StatusCodes.OK).json({ cart });
 };
 
-// const transformCartItem = async (orderedProduct) => {
-//   const productsPromise = orderedProduct.map((item) => Product.findOne({ _id: item.productId }));
-//   const products = await Promise.all(productsPromise);
-//   return orderedProduct.map((item) => {
-//     const { _id, name, sale, type, rating, price, gender, imageUrl } = products.find((prod) => prod._id.equals(item.productId));
-//     return {
-//       _id,
-//       gender,
-//       name,
-//       sale,
-//       type,
-//       rating,
-//       imageUrl,
-//       price,
-//       quantity: item.quantity,
-//     };
-//   });
-// };
-
 const transformCartItem = async (orderedProduct) => {
   const productIds = orderedProduct.map((item) => item.productId);
-  const prodCollection = await Product.find({
-    _id: {
-      $in: productIds,
-    },
-  });
+  const prodCollection = await Product.find({ _id: { $in: productIds, } });
+
+  //  find all product in cart and add quantity
   return prodCollection.map((pc, index) => {
     return { ...pc.toObject(), quantity: orderedProduct[index].quantity };
   });

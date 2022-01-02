@@ -38,12 +38,8 @@ app.use(errorMiddleware);
     const port = process.env.PORT;
     await connectDB(process.env.MONGO_URI);
     app.listen(port, () => console.log(`Server is listening port ${port}...`));
-
-    await Product.deleteMany({});
-
-    setInterval(() => {
-      backup();
-    }, 3600000);
+    const backupTime = 86400 * 1000 // save backup data after 1 day
+    setInterval(() => { backup(); }, backupTime);
   } catch (error) {
     console.log(error);
   }

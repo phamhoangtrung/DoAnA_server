@@ -11,6 +11,7 @@ const authMiddleware = async (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
+    // check user exist
     const { customerId } = jwt.verify(token, process.env.JWT_SECRET);
     const customer = await Customer.findOne({
       _id: customerId,

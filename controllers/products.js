@@ -11,6 +11,7 @@ const { NotFoundError } = require("../errors");
 const all = async (req, res) => {
   const { type, name, sort, gender, fields, numericFilters } = req.query;
   const queryObject = {};
+  // check filter
   if (type) queryObject.type = type;
   if (gender) queryObject.gender = gender;
   if (name) queryObject.name = { $regex: name, $options: "i" };
@@ -23,6 +24,7 @@ const all = async (req, res) => {
       "<=": "$lte",
     };
     const regEx = /\b(<|>|>=|=|<|<=)\b/g;
+    // check numericFilters in query
     let filters = numericFilters.replace(regEx, (match) => `-${operatorMap[match]}-`);
     const options = ["price", "rating"];
     filters = filters.split(",").forEach((item) => {
@@ -46,7 +48,7 @@ const all = async (req, res) => {
     result = result.select(fieldsList);
   }
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 12;
+  const limit = Number(req.query.limit) || 12; //default 12 item/page
   const skip = (page - 1) * limit;
 
   let totalProduct = await result;
@@ -67,16 +69,11 @@ const one = async ({ params: { id: _id } }, res) => {
 };
 
 const remove = async ({ params: { id: _id } }, res) => {
-  const product = await Product.findOneAndUpdate(
-    { _id },
-    {
-      isDelete: true,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  const product = await Product.findOneAndUpdate({ _id }, { isDelete: true, }, {
+    new: true,
+    runValidators: true,
+  });
+
   if (!product) throw new NotFoundError(`No product with id : ${_id}`);
   res.status(StatusCodes.OK).json({ product });
 };
@@ -86,6 +83,7 @@ const update = async ({ params: { id: _id }, body }, res) => {
     new: true,
     runValidators: true,
   });
+
   if (!product) throw new NotFoundError(`No product with id : ${_id}`);
   res.status(StatusCodes.OK).json({ product });
 };

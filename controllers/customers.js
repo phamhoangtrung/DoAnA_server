@@ -39,13 +39,10 @@ const create = async (req, res) => {
 };
 
 const update = async ({ params: { id: _id } }, res) => {
-  const customer = await Customer.findOneAndUpdate(
-    { _id },
-    { role: "admin" },
-    {
-      new: true,
-      runValidators: true,
-    }
+  const customer = await Customer.findOneAndUpdate({ _id }, { role: "admin" }, {
+    new: true,
+    runValidators: true,
+  }
   );
   if (!customer) throw new NotFoundError(`No customer with id : ${_id}`);
   res.status(StatusCodes.OK).json({ customer });

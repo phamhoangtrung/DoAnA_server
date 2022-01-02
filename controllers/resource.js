@@ -10,8 +10,10 @@ const one = async (req, res) => {
 
 const create = async (req, res) => {
   const { mimetype, data } = req.files.file;
+  // get file type
   const type = mimetype.split("/")[1];
   const img = await Image.create({ type, data });
+  // create file address
   const filename = `${req.protocol}://${req.get("host")}/photo/${img._id}`;
   res.status(StatusCodes.OK).send({ type, filename });
 };
