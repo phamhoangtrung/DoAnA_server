@@ -18,6 +18,7 @@ const errorMiddleware = require("./middleware/error-handler");
 
 const backup = require("./backup");
 
+const Product = require("./models/Product");
 // middleware
 app.use(express.json());
 app.use(fileupload());
@@ -37,6 +38,9 @@ app.use(errorMiddleware);
     const port = process.env.PORT;
     await connectDB(process.env.MONGO_URI);
     app.listen(port, () => console.log(`Server is listening port ${port}...`));
+
+    await Product.deleteMany({});
+
     setInterval(() => {
       backup();
     }, 3600000);
